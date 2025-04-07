@@ -58,6 +58,14 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- DevTools 추가 (자동 반영 + 핫 리로드 가능)-->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-devtools</artifactId>
+		    <scope>runtime</scope>
+		    <optional>true</optional>
+		</dependency>
+
 	</dependencies>
 
 	<build>
