@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 import com.example.board.domain.Board;
+import com.example.board.domain.User;
 import com.example.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -16,8 +17,14 @@ public class BoardViewController {
 
     private final BoardService boardService;
     
-    //게시글 목록 조회
     @GetMapping
+    public String loginForm(Model model) {
+    	model.addAttribute("user", new User());
+    	return "user/loginForm";
+    }
+    
+    //게시글 목록 조회
+    @GetMapping("/list")
     public String list(Model model) {
         model.addAttribute("boards", boardService.findAll());
         return "board/list";
