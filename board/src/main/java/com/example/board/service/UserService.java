@@ -59,7 +59,7 @@ public class UserService implements UserDetailsService {
         if (isIdDuplicated(user.getId())) {
             return "이미 존재하는 사용자 ID입니다.";
         }
-        // 이메일 중복 체크
+        // 이메일 중복 체크 try catch + equals 적용
         if (user.getEmail() != null && isEmailDuplicated(user.getEmail())) {
             return "이미 등록된 이메일입니다.";
         }
