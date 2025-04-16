@@ -8,9 +8,12 @@
     <meta http-equiv="Expires" content="0" />
 </head>
 <body class="container mt-4">
-    <!-- 알림 메시지가 있으면 alert로 띄움 -->
-    <p th:text="${alertMessage}">메시지 없음</p>
-
+    <!-- 알림 메시지 출력 -->
+    <div th:if="${alertMessage}" class="alert alert-info">
+        <p th:text="${alertMessage}">메시지 없음</p>
+    </div>
+    
+    <!-- 로그인된 사용자와 로그아웃 버튼 -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>게시판 목록</h2>
         <div sec:authorize="isAuthenticated()">
@@ -22,6 +25,7 @@
         <span>로그인된 사용자: <span th:text="${#authentication.name}"></span></span>
     </div>
 
+    <!-- 게시글 목록 테이블 -->
     <table class="table">
         <thead>
             <tr>
@@ -36,7 +40,7 @@
             <tr th:each="board : ${boards}">
                 <td th:text="${board.id}"></td>
                 <td>
-                    <!-- 게시글 상세보기 링크, 로그인한 사용자가 작성자일 경우만 활성화 -->
+                    <!-- 게시글 상세보기 링크, 작성자일 경우만 활성화 -->
                     <a th:href="@{/board/{id}(id=${board.id})}" 
                        th:classappend="${#authentication != null and board.writer == #authentication.name ? '' : 'disabled'}"
                        th:text="${board.title}"></a>
@@ -44,26 +48,26 @@
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
+                    <!-- 삭제 버튼 (작성자일 경우만 표시) -->
                     <form th:action="@{/board/delete/{id}(id=${board.id})}" method="get"
-					      th:if="${#authentication != null and board.writer == #authentication.name}"
-					      onsubmit="return confirm('정말 삭제하시겠습니까?');"
-					      style="display: inline;">
-					    <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-					    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-					</form>
+                          th:if="${#authentication != null and board.writer == #authentication.name}"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                    </form>
                 </td>
             </tr>
         </tbody>
     </table>
 
+    <!-- 새 글 작성 버튼 -->
     <a href="/board/new" class="btn btn-primary">새 글 작성</a>
 
-    <!-- 알림 메시지 표시 (리디렉션 후 전달된 메시지 확인) -->
-    <script th:if="${alertMessage}" th:inline="javascript">
+    <!-- 로그인 성공 메시지 출력 (세션에서 확인) -->
+    <script th:if="${session.loginMessage}" th:inline="javascript">
         window.onload = function() {
-            alert('[[${alertMessage}]]');
+            alert('[[${session.loginMessage}]]');
         };
     </script>
-
 </body>
 </html>

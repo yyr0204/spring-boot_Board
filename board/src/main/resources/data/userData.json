@@ -19,5 +19,12 @@
     "email": "user3@example.com",
     "role": "ROLE_USER",
     "createdAt": "2025-04-07 12:36:00"
+  },
+  {
+    "id": "admin",
+    "pw": "admin",
+    "email": "amdin@example.com",
+    "role": "ADMIN",
+    "createdAt": "2025-04-07 12:36:00"
   }
 ]

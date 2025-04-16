@@ -10,10 +10,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import lombok.RequiredArgsConstructor;
+
 @Configuration  // 이 클래스가 스프링 설정 클래스임을 나타냄
 @EnableWebSecurity  // Spring Security를 활성화하는 어노테이션
+@RequiredArgsConstructor
 public class SecurityConfig {
-
+	
+    private final CustomLoginSuccessHandler customLoginSuccessHandler;
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -26,14 +31,14 @@ public class SecurityConfig {
                 // 그 외 모든 요청은 모두 접근 허용
                 .anyRequest().permitAll()
             )
+            
             // 로그인 관련 설정
             .formLogin(form -> form
                 // 사용자 정의 로그인 페이지의 경로 지정
                 .loginPage("/user/login")
                 // 로그인 요청을 처리할 URL (form의 action 속성)
                 .loginProcessingUrl("/login")
-                // 로그인 성공 시 이동할 기본 URL (true: 항상 해당 URL로 이동)
-                .defaultSuccessUrl("/board/list", true)
+                .successHandler(customLoginSuccessHandler)
                 // 로그인 실패 시 이동할 URL
                 .failureUrl("/user/login?error")
                 // 로그인 관련 URL은 모두 접근 허용

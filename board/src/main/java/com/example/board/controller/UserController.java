@@ -7,11 +7,13 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.board.domain.User;
 import com.example.board.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -23,7 +25,12 @@ public class UserController {
 
     // 로그인 화면 요청 처리
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginForm(HttpServletRequest request) {
+    	// 로그인 폼 열 때 기존 사용자 있으면 세션에 저장
+        String currentUser = request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : null;
+        if (currentUser != null) {
+            request.getSession().setAttribute("previousUser", currentUser);
+        }
         return "user/loginForm"; // 로그인 폼 뷰 반환
     }
 
@@ -38,7 +45,8 @@ public class UserController {
     public String userRegister(@ModelAttribute User user,
                                @RequestParam("confirmPw") String confirmPw,
                                Model model,
-                               HttpServletRequest request) {
+                               HttpServletRequest request,
+                               RedirectAttributes redirectAttributes) {
 
         // 회원가입 처리 및 결과 메시지 반환
         String result = userService.registerUser(user, confirmPw);
@@ -47,6 +55,12 @@ public class UserController {
         if (!"회원가입이 완료되었습니다.".equals(result)) {
             model.addAttribute("error", result);
             return "user/registerForm";
+        }
+
+        // 기존 세션 무효화
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();  // 기존 세션을 무효화
         }
 
         // 자동 로그인 처리
@@ -72,8 +86,11 @@ public class UserController {
             model.addAttribute("error", "자동 로그인 중 오류가 발생했습니다.");
             return "user/loginForm";
         }
+
         // 로그인된 상태로 게시판 리스트 페이지로 리다이렉트
+        redirectAttributes.addFlashAttribute("sessionExpired", "기존 세션이 만료되어 새로 로그인되었습니다.");
         return "redirect:/board/list";
     }
+
 
 }

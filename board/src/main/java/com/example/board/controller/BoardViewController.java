@@ -1,7 +1,5 @@
 package com.example.board.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
@@ -22,7 +20,7 @@ import com.example.board.domain.Board;
 import com.example.board.domain.User;
 import com.example.board.service.BoardService;
 
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -40,7 +38,12 @@ public class BoardViewController {
     
     //게시글 목록 조회
     @GetMapping("/list")
-    public String list(Model model,CsrfToken token) {
+    public String list(Model model,CsrfToken token,HttpSession session) {
+    	Object loginMessage = session.getAttribute("loginMessage");
+        if (loginMessage != null) {
+            model.addAttribute("alertMessage", loginMessage.toString());
+            session.removeAttribute("loginMessage"); // 메시지 제거해서 새로고침 시 안 뜸
+        }
         model.addAttribute("boards", boardService.findAll());
         model.addAttribute("_csrf", token); // csrf 토큰 수동 전달
         return "board/list";
@@ -63,7 +66,7 @@ public class BoardViewController {
         String loginUsername = userDetails != null ? userDetails.getUsername() : null;
 
         // 로그인한 사용자와 게시글 작성자가 다르면 접근 제한
-        if (loginUsername != null && !loginUsername.equals(board.getWriter())) {
+        if (loginUsername == null || !isAdminOrWriter(loginUsername, board.getWriter())) {
             redirectAttributes.addFlashAttribute("alertMessage", "🚫 권한이 없습니다.");
             return "redirect:/board/list";
         }
@@ -111,7 +114,7 @@ public class BoardViewController {
         String loginUsername = userDetails.getUsername();
         String writerUsername = board.getWriter(); // 게시글 작성자
 
-        if (!loginUsername.equals(writerUsername)) {
+        if (!isAdminOrWriter(loginUsername, writerUsername)) {
             redirectAttributes.addFlashAttribute("alertMessage", "🚫 권한이 없습니다.");
             return "redirect:/board/list"; // 권한이 없으면 목록으로
         }
@@ -120,10 +123,10 @@ public class BoardViewController {
         redirectAttributes.addFlashAttribute("alertMessage", "게시글이 성공적으로 삭제되었습니다.");
         return "redirect:/board/list"; // 삭제 후 목록으로 리디렉션
     }
-
-
-
-
-
+    
+    //  admin 이거나 작성자인지 확인하는 메서드
+    private boolean isAdminOrWriter(String loginUsername, String writerUsername) {
+        return "admin".equals(loginUsername) || loginUsername.equals(writerUsername);
+    }
 
 }
