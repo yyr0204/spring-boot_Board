@@ -41,20 +41,20 @@
                 <td th:text="${board.id}"></td>
                 <td>
                     <!-- 게시글 상세보기 링크, 작성자일 경우만 활성화 -->
-                    <a th:href="@{/board/{id}(id=${board.id})}" 
-                       th:classappend="${#authentication != null and board.writer == #authentication.name ? '' : 'disabled'}"
-                       th:text="${board.title}"></a>
+                    <a th:href="@{/board/{id}(id=${board.id})}"
+				       th:classappend="${#authentication != null and (board.writer == #authentication.name or #authentication.name == 'admin') ? '' : 'disabled'}"
+				       th:text="${board.title}"></a>
                 </td>
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <!-- 삭제 버튼 (작성자일 경우만 표시) -->
-                    <form th:action="@{/board/delete/{id}(id=${board.id})}" method="get"
-                          th:if="${#authentication != null and board.writer == #authentication.name}"
-                          onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
-                        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                    </form>
+                    <!-- 삭제 버튼: 작성자 또는 admin만 보임 -->
+				    <form th:action="@{/board/delete/{id}(id=${board.id})}" method="get"
+				          th:if="${#authentication != null and (board.writer == #authentication.name or #authentication.name == 'admin')}"
+				          onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
+				        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+				        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+				    </form>
                 </td>
             </tr>
         </tbody>
