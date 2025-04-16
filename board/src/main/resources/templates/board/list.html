@@ -8,12 +8,20 @@
     <meta http-equiv="Expires" content="0" />
 </head>
 <body class="container mt-4">
+    <!-- 알림 메시지가 있으면 alert로 띄움 -->
+    <p th:text="${alertMessage}">메시지 없음</p>
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>게시판 목록</h2>
         <div sec:authorize="isAuthenticated()">
             <a th:href="@{/user/logout}" class="btn btn-outline-primary">로그아웃</a>
         </div>
     </div>
+
+    <div>
+        <span>로그인된 사용자: <span th:text="${#authentication.name}"></span></span>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -28,16 +36,34 @@
             <tr th:each="board : ${boards}">
                 <td th:text="${board.id}"></td>
                 <td>
-                    <a th:href="@{/board/{id}(id=${board.id})}" th:text="${board.title}"></a>
+                    <!-- 게시글 상세보기 링크, 로그인한 사용자가 작성자일 경우만 활성화 -->
+                    <a th:href="@{/board/{id}(id=${board.id})}" 
+                       th:classappend="${#authentication != null and board.writer == #authentication.name ? '' : 'disabled'}"
+                       th:text="${board.title}"></a>
                 </td>
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <a th:href="@{/board/delete/{id}(id=${board.id})}" class="btn btn-danger btn-sm">삭제</a>
+                    <form th:action="@{/board/delete/{id}(id=${board.id})}" method="get"
+					      th:if="${#authentication != null and board.writer == #authentication.name}"
+					      onsubmit="return confirm('정말 삭제하시겠습니까?');"
+					      style="display: inline;">
+					    <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+					    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+					</form>
                 </td>
             </tr>
         </tbody>
     </table>
+
     <a href="/board/new" class="btn btn-primary">새 글 작성</a>
+
+    <!-- 알림 메시지 표시 (리디렉션 후 전달된 메시지 확인) -->
+    <script th:if="${alertMessage}" th:inline="javascript">
+        window.onload = function() {
+            alert('[[${alertMessage}]]');
+        };
+    </script>
+
 </body>
 </html>

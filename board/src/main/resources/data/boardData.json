@@ -2,13 +2,13 @@
   {
     "title": "First Post",
     "content": "This is the first post.",
-    "writer": "Writer1",
+    "writer": "1",
     "createdAt": "2025-04-07 12:30:00"
   },
   {
     "title": "Second Post",
     "content": "This is the second post.",
-    "writer": "Writer2",
+    "writer": "2",
     "createdAt": "2025-04-07 12:30:00"
   }
 ]
