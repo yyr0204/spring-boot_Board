@@ -50,6 +50,8 @@ public class BoardViewController {
     public String list(
         @RequestParam(value = "page", defaultValue = "0") int page, // 페이지 번호, 기본값은 0
         @RequestParam(value = "size", defaultValue = "10") int size, // 페이지 당 게시글 개수, 기본값은 10
+        @RequestParam(value = "searchType", required = false) String searchType,
+        @RequestParam(value = "keyword", required = false) String keyword,
         Model model,
         CsrfToken token,
         HttpSession session) {
@@ -67,12 +69,15 @@ public class BoardViewController {
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 페이지 번호, 사이즈, 정렬 설정
 
             // 게시글 목록을 Page 객체로 받아옴
-            Page<Board> boardPage = boardService.findPaginated(pageable);
+//            Page<Board> boardPage = boardService.findPaginated(pageable);
+            Page<Board> boardPage = boardService.searchBoards(searchType, keyword, pageable);
 
             model.addAttribute("boards", boardPage.getContent()); // 게시글 목록
             model.addAttribute("currentPage", page); // 현재 페이지
             model.addAttribute("totalPages", boardPage.getTotalPages()); // 전체 페이지 수
             model.addAttribute("_csrf", token); // csrf 토큰 수동 전달 (보안을 위해)
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("keyword", keyword);
 
             return "board/list"; // 뷰 이름 반환
         } catch (Exception e) {

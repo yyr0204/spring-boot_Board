@@ -38,7 +38,25 @@ public class BoardService {
     }
 
     // 페이징 처리된 게시글 조회
-    public Page<Board> findPaginated(Pageable pageable) {
-        return boardRepository.findAll(pageable); // Pageable 객체를 그대로 사용
+//    public Page<Board> findPaginated(Pageable pageable) {
+//        return boardRepository.findAll(pageable); // Pageable 객체를 그대로 사용
+//    }
+    
+    public Page<Board> searchBoards(String searchType, String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isBlank()) {
+            return boardRepository.findAll(pageable);
+        }
+
+        switch (searchType) {
+            case "title":
+                return boardRepository.findByTitleIgnoreCase(keyword, pageable);
+            case "categoryTitle":
+                return boardRepository.findByCategoryOrTitleIgnoreCase(keyword, keyword, pageable);
+            case "content":
+                return boardRepository.findByContentIgnoreCase(keyword, pageable);
+            default:
+                return boardRepository.findAll(pageable);
+        }
     }
+
 }

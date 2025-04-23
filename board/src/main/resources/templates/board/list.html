@@ -21,6 +21,12 @@
         .content-container {
             margin-bottom: 70px;
         }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; /* 검색창 아래 여백 */
+        }
     </style>
 </head>
 <body class="container mt-4">
@@ -71,6 +77,25 @@
     </table>
 
     <a href="/board/new" class="btn btn-primary">새 글 작성</a>
+
+	 <div class="search-container">
+        <form class="row g-2" method="get" th:action="@{/board/list}">
+            <div class="col-auto">
+                <select class="form-select" name="searchType">
+                    <option value="title">제목</option>
+                    <option value="categoryTitle">말머리+제목</option>
+                    <option value="content">내용</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <input type="text" class="form-control" name="keyword" placeholder="검색어 입력">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">검색</button>
+            </div>
+        </form>
+    </div>
+		
 
     <div class="pagination-container">
         <nav aria-label="Page navigation example">
