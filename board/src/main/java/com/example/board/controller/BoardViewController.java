@@ -63,8 +63,11 @@ public class BoardViewController {
                 session.removeAttribute("loginMessage"); // 메시지 제거해서 새로고침 시 안 뜸
             }
             
-            // 현재 페이지 번호를 세션에 저장
+            // 페이징 및 검색조건- 세션에 저장
             session.setAttribute("currentPage", page);
+            session.setAttribute("searchType", searchType);
+            session.setAttribute("keyword", keyword);
+            
             // Pageable 객체 생성
             Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // 페이지 번호, 사이즈, 정렬 설정
 
@@ -118,7 +121,12 @@ public class BoardViewController {
 
             // 현재 페이지 정보도 모델에 추가 (목록으로 돌아갈 때 사용)
             Integer currentPage = (Integer) session.getAttribute("currentPage");
+            String searchType = (String) session.getAttribute("searchType");
+            String keyword = (String) session.getAttribute("keyword");
+            
             model.addAttribute("currentPage", currentPage != null ? currentPage : 0);
+            model.addAttribute("searchType", searchType);
+            model.addAttribute("keyword", keyword);
 
             return "board/detail";
 
@@ -195,8 +203,13 @@ public class BoardViewController {
     // 기존 페이지로 이동
     private String redirectToCurrentPage(HttpSession session) {
         Integer currentPage = (Integer) session.getAttribute("currentPage");
+        String searchType = (String) session.getAttribute("searchType");
+        String keyword = (String) session.getAttribute("keyword");
+        
         if (currentPage == null) currentPage = 0;
-        return "redirect:/board/list?page=" + currentPage;
+        if (searchType == null) searchType = "";
+        if (keyword == null) keyword = "";
+        return "redirect:/board/list?page=" + currentPage + "&searchType=" + searchType + "&keyword=" + keyword;
     }
 
 }

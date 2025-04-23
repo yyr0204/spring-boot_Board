@@ -57,7 +57,7 @@
         </thead>
         <tbody>
             <tr th:each="board : ${boards}" 
-                th:with="linkUrl=@{/board/{id}(id=${board.id})}, fullUrl=${linkUrl} + '?page=' + ${currentPage}">
+                th:with="linkUrl=@{/board/{id}(id=${board.id})}, fullUrl=${linkUrl} + '?page=' + ${currentPage} + '&searchType=' + ${searchType} + '&keyword=' + ${keyword}">
                 <td th:text="${board.id}"></td>
                 <td>
                     <a th:href="${fullUrl}" th:text="${'[' + board.category + '] ' + board.title}"></a>
