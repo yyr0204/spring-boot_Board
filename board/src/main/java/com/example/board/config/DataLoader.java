@@ -1,8 +1,10 @@
 package com.example.board.config;
 
 import com.example.board.domain.Board;
+import com.example.board.domain.Category;
 import com.example.board.domain.User;
 import com.example.board.repository.BoardRepository;
+import com.example.board.repository.CategoryRepository;
 import com.example.board.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.CommandLineRunner;
@@ -21,21 +23,24 @@ public class DataLoader implements CommandLineRunner {
     private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder; // PasswordEncoder 주입
+    private final CategoryRepository categoryRepository;
 
-    public DataLoader(BoardRepository boardRepository, UserRepository userRepository, ObjectMapper objectMapper, PasswordEncoder passwordEncoder) {
+    public DataLoader(BoardRepository boardRepository, UserRepository userRepository, ObjectMapper objectMapper, PasswordEncoder passwordEncoder,CategoryRepository categoryRepository) {
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
         this.objectMapper = objectMapper;
         this.passwordEncoder = passwordEncoder; // 생성자에 추가
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
     public void run(String... args) throws IOException {
         loadData("src/main/resources/data/boardData.json", boardRepository, Board.class);
         loadUserData("src/main/resources/data/userData.json", userRepository, User.class); // User 전용 메서드 호출
+        loadData("src/main/resources/data/categoryData.json", categoryRepository, Category.class);
     }
 
-    // Board 데이터 로드는 기존 로직 유지
+    // 데이터 로드 메서드 (Board, Category 등)
     private <T, ID> void loadData(String filePath, JpaRepository<T, ID> repository, Class<T> entityClass) throws IOException {
         File jsonFile = new File(filePath);
         if (!jsonFile.exists()) {
@@ -73,4 +78,5 @@ public class DataLoader implements CommandLineRunner {
             System.out.println("User data already exists in the database.");
         }
     }
+
 }

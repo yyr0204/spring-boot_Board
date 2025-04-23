@@ -9,19 +9,26 @@
     <form th:action="@{/board/save}" th:object="${board}" method="post">
         <input type="hidden" th:field="*{id}">
         <div class="mb-3">
+            <label class="form-label">말머리 (Category)</label>
+            <select class="form-control" th:field="*{category}" required>
+                <option value="" disabled selected>카테고리 선택</option>
+                <option th:each="category : ${categories}" th:value="${category.name}" th:text="${category.name}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
             <label class="form-label">제목</label>
             <input type="text" class="form-control" th:field="*{title}" required>
         </div>
         <div class="mb-3">
             <label class="form-label">작성자</label>
-            <input type="text" class="form-control" th:field="*{writer}" required>
+            <input class="form-control" th:field="*{writer}" th:value="${board.writer}" readonly>
         </div>
         <div class="mb-3">
             <label class="form-label">내용</label>
             <textarea class="form-control" th:field="*{content}" rows="5" required></textarea>
         </div>
         <button type="submit" class="btn btn-success">저장</button>
-        <a href="/board" class="btn btn-secondary">취소</a>
+       <a th:href="@{/board/list(page=${session.currentPage})}" class="btn btn-secondary">취소</a>
     </form>
 </body>
 </html>

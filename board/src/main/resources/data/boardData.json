@@ -1,14 +1,114 @@
 [
   {
-    "title": "First Post",
-    "content": "This is the first post.",
-    "writer": "1",
-    "createdAt": "2025-04-07 12:30:00"
+    "title": "게시판 이용 규칙 안내",
+    "content": "모든 이용자는 게시판 규칙을 준수해야 합니다.",
+    "writer": "admin",
+    "category": "공지",
+    "createdAt": "2025-04-01 09:00:00"
   },
   {
-    "title": "Second Post",
-    "content": "This is the second post.",
+    "title": "오늘 날씨 정말 좋네요",
+    "content": "벚꽃 구경 다녀오신 분 계신가요?",
     "writer": "2",
-    "createdAt": "2025-04-07 12:30:00"
+    "category": "게시",
+    "createdAt": "2025-04-01 10:30:00"
+  },
+  {
+    "title": "게시글 작성 팁 공유",
+    "content": "가독성 좋게 작성하는 법 공유합니다.",
+    "writer": "3",
+    "category": "게시",
+    "createdAt": "2025-04-02 11:20:00"
+  },
+  {
+    "title": "시스템 점검 안내",
+    "content": "4월 3일 오전 1시부터 2시간 동안 점검 예정입니다.",
+    "writer": "admin",
+    "category": "공지",
+    "createdAt": "2025-04-02 17:00:00"
+  },
+  {
+    "title": "오늘의 커피 추천",
+    "content": "아이스 아메리카노에 시럽 하나 추가해보세요!",
+    "writer": "2",
+    "category": "게시",
+    "createdAt": "2025-04-03 09:45:00"
+  },
+  {
+    "title": "점심 추천 메뉴!",
+    "content": "오늘은 돈가스가 먹고 싶네요~",
+    "writer": "1",
+    "category": "게시",
+    "createdAt": "2025-04-04 12:00:00"
+  },
+  {
+    "title": "정기 점검 완료 안내",
+    "content": "모든 기능이 정상화되었습니다.",
+    "writer": "admin",
+    "category": "공지",
+    "createdAt": "2025-04-04 15:30:00"
+  },
+  {
+    "title": "주말에 뭐하시나요?",
+    "content": "영화 한 편 보러 가려는데 추천 좀 해주세요!",
+    "writer": "3",
+    "category": "게시",
+    "createdAt": "2025-04-05 18:10:00"
+  },
+  {
+    "title": "이벤트 당첨자 발표",
+    "content": "축하드립니다! 게시판 이벤트 당첨자 공지입니다.",
+    "writer": "admin",
+    "category": "공지",
+    "createdAt": "2025-04-06 10:00:00"
+  },
+  {
+    "title": "새로 나온 드라마 보신 분?",
+    "content": "재밌는 드라마 추천 좀 해주세요~",
+    "writer": "3",
+    "category": "게시",
+    "createdAt": "2025-04-07 11:00:00"
+  },
+  {
+    "title": "오늘 점심 뭐 드셨어요?",
+    "content": "전 제육볶음 먹었는데 넘 맛있었어요ㅎㅎ",
+    "writer": "2",
+    "category": "게시",
+    "createdAt": "2025-04-07 15:30:00"
+  },
+  {
+    "title": "요즘 날씨 너무 좋아요",
+    "content": "산책하기 딱 좋은 계절이에요. 다들 나가보셨나요?",
+    "writer": "1",
+    "category": "게시",
+    "createdAt": "2025-04-08 09:00:00"
+  },
+  {
+    "title": "추천 영화 공유해요!",
+    "content": "주말에 볼 영화 뭐가 좋을까요? 최근에 본 것 중 추천해주실만한 거 있나요?",
+    "writer": "2",
+    "category": "게시",
+    "createdAt": "2025-04-08 10:20:00"
+  },
+  {
+    "title": "코딩 공부 시작했습니다",
+    "content": "자바 공부 시작했어요. 다들 어떤 교재로 하셨나요?",
+    "writer": "3",
+    "category": "게시",
+    "createdAt": "2025-04-08 13:40:00"
+  },
+  {
+    "title": "오늘 운동하신 분?",
+    "content": "헬스장 다녀왔어요! 운동 루틴 공유해요!",
+    "writer": "1",
+    "category": "게시",
+    "createdAt": "2025-04-08 16:15:00"
+  },
+  {
+    "title": "커피 뭐 좋아하세요?",
+    "content": "저는 아이스 아메리카노파인데 다들 어떤 커피 좋아하세요?",
+    "writer": "2",
+    "category": "게시",
+    "createdAt": "2025-04-08 17:50:00"
   }
 ]

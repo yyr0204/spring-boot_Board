@@ -19,10 +19,11 @@ public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; 
-
+    
     private String title; 
     private String content;
     private String writer;
+    private String category;
 
     @Column(updatable = false)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

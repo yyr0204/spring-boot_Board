@@ -4,32 +4,41 @@ import com.example.board.repository.BoardRepository;
 import com.example.board.domain.Board;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor // Lombok이 자동으로 생성자 추가
+@RequiredArgsConstructor
 public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    public List<Board> findAll() {
-        return boardRepository.findAll();
-    }
+    // 전체 게시글 조회 (페이징 없이)
+//    public List<Board> findAll() {
+//        return boardRepository.findAll();
+//    }
 
+    // 특정 게시글 조회
     public Optional<Board> findById(Long id) {
         return boardRepository.findById(id);
     }
 
+    // 게시글 저장
     public Board save(Board board) {
         return boardRepository.save(board);
     }
 
+    // 게시글 삭제
     public void deleteById(Long id) {
         boardRepository.deleteById(id);
     }
-}
 
+    // 페이징 처리된 게시글 조회
+    public Page<Board> findPaginated(Pageable pageable) {
+        return boardRepository.findAll(pageable); // Pageable 객체를 그대로 사용
+    }
+}

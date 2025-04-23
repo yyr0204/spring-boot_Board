@@ -23,18 +23,18 @@
     </div>
 
     <div>
-        <a th:href="@{/board/list}" class="btn btn-outline-primary">목록으로 돌아가기</a>
+        <!-- 목록으로 돌아가기 (페이지 파라미터 유지) -->
+        <a th:href="@{/board/list(page=${currentPage})}" class="btn btn-outline-primary">목록으로 돌아가기</a>
         
         <!-- 게시글 작성자 또는 admin만 수정/삭제 가능 -->
-		<div th:if="${board.writer == loginUsername or loginUsername == 'admin'}">
-		    <a th:href="@{/board/edit/{id}(id=${board.id})}" class="btn btn-warning btn-sm">수정</a>
-		    <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" 
-		          onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
-		        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-		        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-		    </form>
-		</div>
-
+        <div th:if="${board.writer == loginUsername or loginUsername == 'admin'}">
+            <a th:href="@{/board/edit/{id}(id=${board.id})}" class="btn btn-warning btn-sm">수정</a>
+            <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post" 
+                  onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+            </form>
+        </div>
     </div>
 
     <!-- 알림 메시지 표시 -->

@@ -6,14 +6,28 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    <style>
+        .pagination-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 999;
+        }
+
+        .content-container {
+            margin-bottom: 70px;
+        }
+    </style>
 </head>
 <body class="container mt-4">
-    <!-- 알림 메시지 출력 -->
     <div th:if="${alertMessage}" class="alert alert-info">
         <p th:text="${alertMessage}">메시지 없음</p>
     </div>
-    
-    <!-- 로그인된 사용자와 로그아웃 버튼 -->
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>게시판 목록</h2>
         <div sec:authorize="isAuthenticated()">
@@ -25,7 +39,6 @@
         <span>로그인된 사용자: <span th:text="${#authentication.name}"></span></span>
     </div>
 
-    <!-- 게시글 목록 테이블 -->
     <table class="table">
         <thead>
             <tr>
@@ -37,33 +50,51 @@
             </tr>
         </thead>
         <tbody>
-            <tr th:each="board : ${boards}">
+            <tr th:each="board : ${boards}" 
+                th:with="linkUrl=@{/board/{id}(id=${board.id})}, fullUrl=${linkUrl} + '?page=' + ${currentPage}">
                 <td th:text="${board.id}"></td>
                 <td>
-                    <!-- 게시글 상세보기 링크, 작성자일 경우만 활성화 -->
-                    <a th:href="@{/board/{id}(id=${board.id})}"
-				       th:classappend="${#authentication != null and (board.writer == #authentication.name or #authentication.name == 'admin') ? '' : 'disabled'}"
-				       th:text="${board.title}"></a>
+                    <a th:href="${fullUrl}" th:text="${'[' + board.category + '] ' + board.title}"></a>
                 </td>
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td>
-                    <!-- 삭제 버튼: 작성자 또는 admin만 보임 -->
-				    <form th:action="@{/board/delete/{id}(id=${board.id})}" method="get"
-				          th:if="${#authentication != null and (board.writer == #authentication.name or #authentication.name == 'admin')}"
-				          onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
-				        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
-				        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-				    </form>
+                    <form th:action="@{/board/delete/{id}(id=${board.id})}" method="post"
+                          th:if="${#authentication != null and (board.writer == #authentication.name or #authentication.name == 'admin')}"
+                          onsubmit="return confirm('정말 삭제하시겠습니까?');" style="display: inline;">
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                    </form>
                 </td>
             </tr>
         </tbody>
     </table>
 
-    <!-- 새 글 작성 버튼 -->
     <a href="/board/new" class="btn btn-primary">새 글 작성</a>
 
-    <!-- 로그인 성공 메시지 출력 (세션에서 확인) -->
+    <div class="pagination-container">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a class="page-link" th:href="@{/board/list?page=0}" tabindex="-1">첫 페이지</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled' : ''">
+                    <a class="page-link" th:href="@{/board/list?page=${currentPage - 1}}">이전</a>
+                </li>
+                <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${currentPage == pageNum} ? 'active' : ''">
+                    <a class="page-link" th:href="@{/board/list(page=${pageNum})}" th:text="${pageNum + 1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <a class="page-link" th:href="@{/board/list?page=${currentPage + 1}}">다음</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled' : ''">
+                    <a class="page-link" th:href="@{/board/list?page=${totalPages - 1}}">마지막 페이지</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
     <script th:if="${session.loginMessage}" th:inline="javascript">
         window.onload = function() {
             alert('[[${session.loginMessage}]]');
