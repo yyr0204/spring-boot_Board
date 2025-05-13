@@ -85,7 +85,7 @@
 	                            th:attr="data-target='replyForm_' + ${comment.id}" onclick="toggleForm(this)">답글 작성</button>
 	
 	                    <div th:if="${comment.writer == loginUsername or loginUsername == 'admin'}">
-	                        <form th:action="@{/board/comment/delete/{id}(id=${comment.id})}" method="post"
+	                        <form th:action="@{/board/{boardId}/comments/{commentId}/delete(boardId=${board.id}, commentId=${comment.id})}" method="post"
 	                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
 	                            <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
 	                            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
@@ -117,7 +117,7 @@
 	                                th:attr="data-target='reReplyForm_' + ${reply.id}" onclick="toggleForm(this)">답글 작성</button>
 	
 	                        <div th:if="${reply.writer == loginUsername or loginUsername == 'admin'}">
-	                            <form th:action="@{/board/comment/delete/{id}(id=${reply.id})}" method="post"
+	                            <form th:action="@{/board/{boardId}/comments/{commentId}/delete(boardId=${board.id}, commentId=${reply.id})}" method="post"
 	                                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
 	                                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
 	                                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
@@ -145,7 +145,7 @@
 	                            <div class="mt-1" th:text="${reReply.content}">대대댓글 내용</div>
 	                        </div>
 	                        <div class="ms-auto" th:if="${reReply.writer == loginUsername or loginUsername == 'admin'}">
-	                            <form th:action="@{/board/comment/delete/{id}(id=${reReply.id})}" method="post"
+	                            <form th:action="@{/board/{boardId}/comments/{commentId}/delete(boardId=${board.id}, commentId=${reReply.id})}" method="post"
 	                                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
 	                                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
 	                                <button type="submit" class="btn btn-danger btn-sm">삭제</button>

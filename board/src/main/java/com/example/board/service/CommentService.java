@@ -31,7 +31,7 @@ public class CommentService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new IllegalArgumentException("게시글이 존재하지 않습니다."));
 
-        comment.setBoard(board);
+        comment.setBoard(board);	//board_id 저장
         comment.setCreatedDate(LocalDateTime.now());
 
         // 대댓글이라면 부모 댓글 설정
@@ -53,8 +53,8 @@ public class CommentService {
         List<Object[]> results = commentRepository.countCommentsGroupedByBoardId();
         return results.stream()
             .collect(Collectors.toMap(
-                r -> (Long) r[0],
-                r -> (Long) r[1]
+                r -> (Long) r[0],	// board id
+                r -> (Long) r[1]	// 댓글수
             ));
     }
 
