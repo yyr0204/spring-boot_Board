@@ -1,6 +1,7 @@
 package com.example.board.controller;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
@@ -78,7 +77,10 @@ public class BoardViewController {
             // 게시글 목록을 Page 객체로 받아옴
 //            Page<Board> boardPage = boardService.findPaginated(pageable);
             Page<Board> boardPage = boardService.searchBoards(searchType, keyword, pageable);
-
+            
+            Map<Long, Long> commentCountMap = commentService.getCommentCountMap();
+            
+            model.addAttribute("commentCountMap", commentCountMap);
             model.addAttribute("boards", boardPage.getContent()); // 게시글 목록
             model.addAttribute("currentPage", page); // 현재 페이지
             model.addAttribute("totalPages", boardPage.getTotalPages()); // 전체 페이지 수
@@ -144,7 +146,7 @@ public class BoardViewController {
         	return "error/500";
         }
     }
-    
+    // 댓글 작성
     @PostMapping("/{boardId}/comments")
     public String addComment(@PathVariable Long boardId,
                              @RequestParam(required = false) Long parentCommentId,
@@ -157,10 +159,47 @@ public class BoardViewController {
             comment.setWriter(loginUsername);
             commentService.saveComment(boardId, comment, parentCommentId);
 
-            return "redirect:/board/" + boardId;
+            return "redirect:/board/" + boardId + "?focus=comment";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("alertMessage", "댓글 작성 중 오류가 발생했습니다.");
             return redirectToCurrentPage(session);
+        }
+    }
+    // 댓글 삭제
+    @PostMapping("/{boardId}/comments/{commentId}/delete")
+    public String deleteComment(@PathVariable Long boardId,
+                                @PathVariable Long commentId,
+                                @AuthenticationPrincipal UserDetails userDetails,
+                                RedirectAttributes redirectAttributes,
+                                HttpSession session) {
+        try {
+            // 로그인 사용자 이름 가져오기
+            String loginUsername = userDetails.getUsername();
+            
+            // 댓글 조회
+            Optional<Comment> optionalComment = commentService.findById(commentId);
+            if (optionalComment.isEmpty()) {
+                redirectAttributes.addFlashAttribute("alertMessage", "댓글을 찾을 수 없습니다.");
+                return redirectToBoardDetail(boardId, session);
+            }
+
+            Comment comment = optionalComment.get();
+
+            // 작성자 확인 (작성자만 삭제 가능)
+            if (!loginUsername.equals(comment.getWriter())) {
+                redirectAttributes.addFlashAttribute("alertMessage", "🚫 권한이 없습니다.");
+                return redirectToBoardDetail(boardId, session);
+            }
+
+            // 댓글 삭제
+            commentService.deleteComment(commentId);
+            redirectAttributes.addFlashAttribute("alertMessage", "댓글이 삭제되었습니다.");
+
+            return redirectToBoardDetail(boardId, session);
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("alertMessage", "댓글 삭제 중 오류가 발생했습니다.");
+            return redirectToBoardDetail(boardId, session);
         }
     }
 
@@ -229,6 +268,7 @@ public class BoardViewController {
     private boolean isAdminOrWriter(String loginUsername, String writerUsername) {
         return "admin".equals(loginUsername) || loginUsername.equals(writerUsername);
     }
+    
     // 기존 페이지로 이동
     private String redirectToCurrentPage(HttpSession session) {
         Integer currentPage = (Integer) session.getAttribute("currentPage");
@@ -240,6 +280,14 @@ public class BoardViewController {
         if (keyword == null) keyword = "";
         return "redirect:/board/list?page=" + currentPage + "&searchType=" + searchType + "&keyword=" + keyword;
     }
-
+    
+    // 게시글 상세 페이지로 리다이렉트
+    private String redirectToBoardDetail(Long boardId, HttpSession session) {
+        Integer currentPage = (Integer) session.getAttribute("currentPage");
+        String searchType = (String) session.getAttribute("searchType");
+        String keyword = (String) session.getAttribute("keyword");
+        
+        return "redirect:/board/" + boardId + "?page=" + currentPage + "&searchType=" + searchType + "&keyword=" + keyword;
+    }
     
 }

@@ -61,6 +61,14 @@
                 <td th:text="${board.id}"></td>
                 <td>
                     <a th:href="${fullUrl}" th:text="${'[' + board.category + '] ' + board.title}"></a>
+					<!-- 댓글 수가 있을 때만 출력 -->
+			        <a th:if="${commentCountMap[board.id] != null}"
+			           th:href="@{'/board/' + ${board.id} + '#comments'}"
+					   class="text-muted ms-1"
+					   style="text-decoration: none; font-size: 0.9em;">
+					    [<span th:text="${commentCountMap[board.id]}"></span>]
+			        </a>
+			        
                 </td>
                 <td th:text="${board.writer}"></td>
                 <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></td>

@@ -4,6 +4,25 @@
     <title>게시글 상세보기</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+    .comment-level-1 {
+        background-color: #f8f9fa; /* 연한 회색 */
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .comment-level-2 {
+        background-color: #f1f3f5;
+        border-left: 4px solid #dee2e6;
+        padding: 10px 10px 10px 15px;
+        border-radius: 5px;
+    }
+    .comment-level-3 {
+        background-color: #e9ecef;
+        border-left: 4px solid #dee2e6;
+        padding: 10px 10px 10px 15px;
+        border-radius: 5px;
+    }
+</style>
     
 </head>
 <body class="container mt-4">
@@ -39,85 +58,108 @@
         </div>
     </div>
     
+    <div style="margin-top: 500px;"></div>
+    
     <!-- 최상위 댓글 작성 폼 -->
 	<div class="card p-3 my-4">
 	    <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}" method="post" onsubmit="return validateComment(this)">
-	        <input type="hidden" name="writer" th:value="${loginUsername}" />
 	        <textarea name="content" class="form-control mb-2" rows="3" placeholder="댓글을 입력하세요"></textarea>
-	        <button type="submit" class="btn btn-primary btn-sm">댓글 등록</button>
+	        <div class="d-flex justify-content-end">
+	            <button type="submit" class="btn btn-primary btn-sm">댓글 등록</button>
+	        </div>
 	    </form>
 	</div>
 	
-	<!-- 댓글 목록 -->
-	<div th:each="comment : ${comments}">
-	    <!-- 최상위 댓글 -->
-	    <div th:if="${comment.parentComment == null}" class="mb-3">
-	        <div class="d-flex align-items-center">
-	            <p class="mb-0 me-2">
-	                <strong th:text="${comment.writer}">작성자</strong>: 
-	                <span th:text="${comment.content}">댓글</span>
-	            </p>
-	            <button type="button" class="btn btn-sm btn-outline-secondary"
-	                    th:attr="data-target='replyForm_' + ${comment.id}" onclick="toggleForm(this)">
-	                답글 작성
-	            </button>
-	        </div>
+	<div id="comments">
+	    <div th:each="comment : ${comments}">
+	        <!-- 최상위 댓글 -->
+	        <div th:if="${comment.parentComment == null}" class="p-3 mb-2 bg-light rounded border">
+	            <div class="d-flex align-items-start">
+	                <div>
+	                    <strong th:text="${comment.writer}">작성자</strong>
+	                    <span class="text-muted small ms-2" th:text="${#temporals.format(comment.createdDate, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+	                    <div class="mt-1" th:text="${comment.content}">댓글 내용</div>
+	                </div>
+	                <div class="ms-auto d-flex align-items-center">
+	                    <button type="button" class="btn btn-sm btn-outline-secondary me-1"
+	                            th:attr="data-target='replyForm_' + ${comment.id}" onclick="toggleForm(this)">답글 작성</button>
 	
-	        <!-- 대댓글 작성 폼 -->
-	        <div th:id="'replyForm_' + ${comment.id}" style="display:none;">
-	            <div class="card p-3 my-2 ms-4">
-	                <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}"
-	                      method="post"
-	                      onsubmit="return validateComment(this)">
+	                    <div th:if="${comment.writer == loginUsername or loginUsername == 'admin'}">
+	                        <form th:action="@{/board/comment/delete/{id}(id=${comment.id})}" method="post"
+	                              onsubmit="return confirm('정말 삭제하시겠습니까?');">
+	                            <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+	                            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+	                        </form>
+	                    </div>
+	                </div>
+	            </div>
+	
+	            <!-- 대댓글 작성 폼 -->
+	            <div th:id="'replyForm_' + ${comment.id}" style="display:none;" class="mt-2 ms-4">
+	                <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}" method="post" onsubmit="return validateComment(this)">
 	                    <input type="hidden" name="parentCommentId" th:value="${comment.id}" />
-	                    <input type="hidden" name="writer" th:value="${loginUsername}" />
-	                    <textarea name="content" class="form-control mb-2" placeholder="대댓글 작성"></textarea>
+	                    <textarea name="content" class="form-control mb-2" rows="2" placeholder="대댓글 작성"></textarea>
 	                    <button type="submit" class="btn btn-sm btn-primary">등록</button>
 	                </form>
 	            </div>
-	        </div>
 	
-	        <!-- 대댓글 목록 -->
-	        <div th:each="reply : ${comment.replies}" class="ms-4 mb-2">
-	            <div class="d-flex align-items-center">
-	                <i class="bi bi-arrow-return-right me-2"></i>
-	                <p class="mb-0 me-2">
-	                    <strong th:text="${reply.writer}">작성자</strong>: 
-	                    <span th:text="${reply.content}">대댓글</span>
-	                </p>
-	                <button type="button" class="btn btn-sm btn-outline-secondary"
-	                        th:attr="data-target='reReplyForm_' + ${reply.id}" onclick="toggleForm(this)">
-	                    답글 작성
-	                </button>
-	            </div>
+	            <!-- 대댓글 목록 -->
+	            <div th:each="reply : ${comment.replies}" class="ms-4 mt-2 p-3 bg-white border-start border-3">
+	                <div class="d-flex align-items-start">
+	                    <i class="bi bi-arrow-return-right me-2 text-secondary"></i>
+	                    <div>
+	                        <strong th:text="${reply.writer}">작성자</strong>
+	                        <span class="text-muted small ms-2" th:text="${#temporals.format(reply.createdDate, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+	                        <div class="mt-1" th:text="${reply.content}">대댓글 내용</div>
+	                    </div>
+	                    <div class="ms-auto d-flex align-items-center">
+	                        <button type="button" class="btn btn-sm btn-outline-secondary me-1"
+	                                th:attr="data-target='reReplyForm_' + ${reply.id}" onclick="toggleForm(this)">답글 작성</button>
 	
-	            <!-- 대대댓글 작성 폼 -->
-	            <div th:id="'reReplyForm_' + ${reply.id}" style="display:none;">
-	                <div class="card p-3 my-2 ms-5">
-	                    <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}"
-	                          method="post"
-	                          onsubmit="return validateComment(this)">
+	                        <div th:if="${reply.writer == loginUsername or loginUsername == 'admin'}">
+	                            <form th:action="@{/board/comment/delete/{id}(id=${reply.id})}" method="post"
+	                                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+	                                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+	                                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	
+	                <!-- 대대댓글 작성 폼 -->
+	                <div th:id="'reReplyForm_' + ${reply.id}" style="display:none;" class="mt-2 ms-4">
+	                    <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}" method="post" onsubmit="return validateComment(this)">
 	                        <input type="hidden" name="parentCommentId" th:value="${reply.id}" />
-	                        <input type="hidden" name="writer" th:value="${loginUsername}" />
-	                        <textarea name="content" class="form-control mb-2" placeholder="대대댓글 작성"></textarea>
+	                        <textarea name="content" class="form-control mb-2" rows="2" placeholder="대대댓글 작성"></textarea>
 	                        <button type="submit" class="btn btn-sm btn-primary">등록</button>
 	                    </form>
 	                </div>
-	            </div>
 	
-	            <!-- 대대댓글 목록 -->
-	            <div th:each="reReply : ${reply.replies}" class="ms-5">
-	                <div class="d-flex align-items-center">
-	                    <i class="bi bi-arrow-return-right me-2"></i>
-	                    <p class="mb-0">
-	                        <strong th:text="${reReply.writer}">작성자</strong>: 
-	                        <span th:text="${reReply.content}">대대댓글</span>
-	                    </p>
+	                <!-- 대대댓글 목록 -->
+	                <div th:each="reReply : ${reply.replies}" class="ms-4 mt-2 p-3 border-start border-2 bg-body-tertiary">
+	                    <div class="d-flex align-items-start">
+	                        <i class="bi bi-arrow-return-right me-2 text-muted"></i>
+	                        <div>
+	                            <strong th:text="${reReply.writer}">작성자</strong>
+	                            <span class="text-muted small ms-2" th:text="${#temporals.format(reReply.createdDate, 'yyyy-MM-dd HH:mm')}">작성시간</span>
+	                            <div class="mt-1" th:text="${reReply.content}">대대댓글 내용</div>
+	                        </div>
+	                        <div class="ms-auto" th:if="${reReply.writer == loginUsername or loginUsername == 'admin'}">
+	                            <form th:action="@{/board/comment/delete/{id}(id=${reReply.id})}" method="post"
+	                                  onsubmit="return confirm('정말 삭제하시겠습니까?');">
+	                                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+	                                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+	                            </form>
+	                        </div>
+	                    </div>
 	                </div>
-	            </div>
-	        </div>
+	            </div> <!-- 대댓글 목록 끝 -->
+	        </div> <!-- 최상위 댓글 끝 -->
 	    </div>
 	</div>
+
+
+
 
     
     <!-- 알림 메시지 표시 -->
@@ -143,7 +185,17 @@
 	        }
 	        return true;
 	    }
+	    window.onload = function () {
+	        const urlParams = new URLSearchParams(window.location.search);
+	        if (urlParams.get('focus') === 'comment') {
+	            const commentSection = document.getElementById('comments');
+	            if (commentSection) {
+	                commentSection.scrollIntoView({ behavior: 'smooth' });
+	            }
+	        }
+	    };
 	</script>
+	
     
 </body>
 </html>
