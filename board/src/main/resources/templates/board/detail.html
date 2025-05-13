@@ -3,6 +3,8 @@
 <head>
     <title>게시글 상세보기</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
 </head>
 <body class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -16,7 +18,7 @@
     <p th:text="${alertMessage}"></p>
 
     <div th:if="${board != null}">
-        <h3 th:text="${board.title}"></h3>
+        <h3 th:text="${'[' + board.category + '] ' + board.title}"></h3>
         <p><strong>작성자:</strong> <span th:text="${board.writer}"></span></p>
         <p><strong>작성일:</strong> <span th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
         <p th:text="${board.content}"></p>
@@ -36,12 +38,112 @@
             </form>
         </div>
     </div>
+    
+    <!-- 최상위 댓글 작성 폼 -->
+	<div class="card p-3 my-4">
+	    <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}" method="post" onsubmit="return validateComment(this)">
+	        <input type="hidden" name="writer" th:value="${loginUsername}" />
+	        <textarea name="content" class="form-control mb-2" rows="3" placeholder="댓글을 입력하세요"></textarea>
+	        <button type="submit" class="btn btn-primary btn-sm">댓글 등록</button>
+	    </form>
+	</div>
+	
+	<!-- 댓글 목록 -->
+	<div th:each="comment : ${comments}">
+	    <!-- 최상위 댓글 -->
+	    <div th:if="${comment.parentComment == null}" class="mb-3">
+	        <div class="d-flex align-items-center">
+	            <p class="mb-0 me-2">
+	                <strong th:text="${comment.writer}">작성자</strong>: 
+	                <span th:text="${comment.content}">댓글</span>
+	            </p>
+	            <button type="button" class="btn btn-sm btn-outline-secondary"
+	                    th:attr="data-target='replyForm_' + ${comment.id}" onclick="toggleForm(this)">
+	                답글 작성
+	            </button>
+	        </div>
+	
+	        <!-- 대댓글 작성 폼 -->
+	        <div th:id="'replyForm_' + ${comment.id}" style="display:none;">
+	            <div class="card p-3 my-2 ms-4">
+	                <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}"
+	                      method="post"
+	                      onsubmit="return validateComment(this)">
+	                    <input type="hidden" name="parentCommentId" th:value="${comment.id}" />
+	                    <input type="hidden" name="writer" th:value="${loginUsername}" />
+	                    <textarea name="content" class="form-control mb-2" placeholder="대댓글 작성"></textarea>
+	                    <button type="submit" class="btn btn-sm btn-primary">등록</button>
+	                </form>
+	            </div>
+	        </div>
+	
+	        <!-- 대댓글 목록 -->
+	        <div th:each="reply : ${comment.replies}" class="ms-4 mb-2">
+	            <div class="d-flex align-items-center">
+	                <i class="bi bi-arrow-return-right me-2"></i>
+	                <p class="mb-0 me-2">
+	                    <strong th:text="${reply.writer}">작성자</strong>: 
+	                    <span th:text="${reply.content}">대댓글</span>
+	                </p>
+	                <button type="button" class="btn btn-sm btn-outline-secondary"
+	                        th:attr="data-target='reReplyForm_' + ${reply.id}" onclick="toggleForm(this)">
+	                    답글 작성
+	                </button>
+	            </div>
+	
+	            <!-- 대대댓글 작성 폼 -->
+	            <div th:id="'reReplyForm_' + ${reply.id}" style="display:none;">
+	                <div class="card p-3 my-2 ms-5">
+	                    <form th:action="@{/board/{boardId}/comments(boardId=${board.id})}"
+	                          method="post"
+	                          onsubmit="return validateComment(this)">
+	                        <input type="hidden" name="parentCommentId" th:value="${reply.id}" />
+	                        <input type="hidden" name="writer" th:value="${loginUsername}" />
+	                        <textarea name="content" class="form-control mb-2" placeholder="대대댓글 작성"></textarea>
+	                        <button type="submit" class="btn btn-sm btn-primary">등록</button>
+	                    </form>
+	                </div>
+	            </div>
+	
+	            <!-- 대대댓글 목록 -->
+	            <div th:each="reReply : ${reply.replies}" class="ms-5">
+	                <div class="d-flex align-items-center">
+	                    <i class="bi bi-arrow-return-right me-2"></i>
+	                    <p class="mb-0">
+	                        <strong th:text="${reReply.writer}">작성자</strong>: 
+	                        <span th:text="${reReply.content}">대대댓글</span>
+	                    </p>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
 
+    
     <!-- 알림 메시지 표시 -->
     <script th:if="${alertMessage}" th:inline="javascript">
         window.onload = function() {
             alert('[[${alertMessage}]]');
         };
     </script>
+    <script>
+	    function toggleForm(button) {
+	        const targetId = button.getAttribute("data-target");
+	        const form = document.getElementById(targetId);
+	        if (form) {
+	            form.style.display = form.style.display === "none" ? "block" : "none";
+	        }
+	    }
+	
+	    function validateComment(form) {
+	        const content = form.querySelector('textarea[name="content"]').value.trim();
+	        if (!content) {
+	            alert("내용을 입력하세요.");
+	            return false;
+	        }
+	        return true;
+	    }
+	</script>
+    
 </body>
 </html>

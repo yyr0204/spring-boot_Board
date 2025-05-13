@@ -1,5 +1,6 @@
 package com.example.board.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.board.domain.Board;
+import com.example.board.domain.Comment;
 import com.example.board.domain.User;
 import com.example.board.repository.CategoryRepository;
 import com.example.board.service.BoardService;
+import com.example.board.service.CommentService;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +41,7 @@ public class BoardViewController {
     private final BoardService boardService;
     @Autowired
     private CategoryRepository categoryRepository;
+    private final CommentService commentService;
     
     @GetMapping
     public String loginForm(Model model) {
@@ -84,7 +88,7 @@ public class BoardViewController {
 
             return "board/list"; // 뷰 이름 반환
         } catch (Exception e) {
-            return "redirect:/error/500"; // 예외 발생 시 에러 페이지로 리디렉션
+        	return "error/500"; // 예외 발생 시 에러 페이지로 
         }
     }
 
@@ -115,9 +119,15 @@ public class BoardViewController {
                 return redirectToCurrentPage(session);
             }
 
-            // 뷰에 데이터 전달
+
+            // 댓글 목록도 함께 조회
+            List<Comment> comments = commentService.getCommentsByBoardId(id);
+            
             model.addAttribute("board", board);
             model.addAttribute("loginUsername", loginUsername);
+            
+            model.addAttribute("comments", comments); // 댓글 목록 추가
+            model.addAttribute("newComment", new Comment()); // 댓글 폼용 객체
 
             // 현재 페이지 정보도 모델에 추가 (목록으로 돌아갈 때 사용)
             Integer currentPage = (Integer) session.getAttribute("currentPage");
@@ -131,7 +141,26 @@ public class BoardViewController {
             return "board/detail";
 
         } catch (Exception e) {
-            return "redirect:/error/500";
+        	return "error/500";
+        }
+    }
+    
+    @PostMapping("/{boardId}/comments")
+    public String addComment(@PathVariable Long boardId,
+                             @RequestParam(required = false) Long parentCommentId,
+                             @ModelAttribute Comment comment,
+                             RedirectAttributes redirectAttributes,
+                             @AuthenticationPrincipal UserDetails userDetails,
+                             HttpSession session) {
+        try {
+            String loginUsername = userDetails.getUsername();
+            comment.setWriter(loginUsername);
+            commentService.saveComment(boardId, comment, parentCommentId);
+
+            return "redirect:/board/" + boardId;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("alertMessage", "댓글 작성 중 오류가 발생했습니다.");
+            return redirectToCurrentPage(session);
         }
     }
 
@@ -148,7 +177,7 @@ public class BoardViewController {
             model.addAttribute("categories", categoryRepository.findAll());
             return "board/form";
         } catch (Exception e) {
-            return "redirect:/error/500";
+        	return "error/500";
         }
     }
 
@@ -159,7 +188,7 @@ public class BoardViewController {
     		boardService.save(board);
     		return "redirect:/board/list";
 		} catch (Exception e) {
-			return "redirect:/error/500";
+			return "error/500";
 		}
     }
     
@@ -191,7 +220,7 @@ public class BoardViewController {
 
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("alertMessage", "게시글 삭제 중 오류가 발생했습니다.");
-            return "redirect:/error/500";
+            return "error/500";
         }
     }
 
@@ -212,4 +241,5 @@ public class BoardViewController {
         return "redirect:/board/list?page=" + currentPage + "&searchType=" + searchType + "&keyword=" + keyword;
     }
 
+    
 }

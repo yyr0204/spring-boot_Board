@@ -17,11 +17,6 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
 
-    // 전체 게시글 조회 (페이징 없이)
-//    public List<Board> findAll() {
-//        return boardRepository.findAll();
-//    }
-
     // 특정 게시글 조회
     public Optional<Board> findById(Long id) {
         return boardRepository.findById(id);
